@@ -4,11 +4,17 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
 # 打印当前工作目录
 print("当前工作目录:", os.getcwd())
 
 # 获取脚本目录并切换工作目录
 script_dir = os.path.dirname(os.path.abspath(__file__))
+# 构建 .env 文件的完整路径
+dotenv_path = os.path.join(script_dir, '.env')
+
+# 加载 .env 文件
+load_dotenv(dotenv_path=dotenv_path)
 os.chdir(script_dir)
 print("已切换工作目录:", os.getcwd())
 
@@ -20,7 +26,7 @@ db_config = {
     "host": os.getenv("DB_HOST"),
     "port": os.getenv("DB_PORT")
 }
-
+print("数据库配置：", db_config)
 # 文件路径
 business_id_file = "../data/auto_repair_businesses_PA_filtered.csv"
 review_file = "../data/yelp_academic_dataset_review.json"
