@@ -1,5 +1,5 @@
 import json
-from code.database import client
+from database import client
 # 输入文件路径
 input_file_path = "data/yelp_academic_dataset_business.json"
 # 要保留的列名
