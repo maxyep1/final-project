@@ -2,8 +2,8 @@ import json
 import csv
 
 # 输入和输出文件路径
-input_file_path = "yelp_academic_dataset_business.json"
-output_csv_path = "auto_repair_businesses_PA_filtered.csv"
+input_file_path = "code/yelp_academic_dataset_business.json"
+output_csv_path = "data/auto_repair_businesses_PA_filtered.csv"
 
 # 过滤后的数据存储列表
 filtered_data = []
