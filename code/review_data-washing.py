@@ -2,9 +2,9 @@ import pandas as pd
 import json
 
 # 文件路径
-business_id_file = "/Users/fan/Downloads/auto_repair_businesses_PA_filtered.csv"
-review_file = "/Users/fan/Downloads/yelp_academic_dataset_review.json"
-output_file = "/Users/fan/Downloads/filtered_reviews.json"
+business_id_file = "data/auto_repair_businesses_PA_filtered.csv"
+review_file = "data/yelp_academic_dataset_review.json"
+output_file = "data/filtered_reviews.json"
 
 # 读取 business_id 文件
 print("Step 1: Loading business_id file...")
