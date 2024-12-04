@@ -1,19 +1,29 @@
 import pandas as pd
 import json
 import psycopg2
+from dotenv import load_dotenv
+import os
+
+# 打印当前工作目录
+print("当前工作目录:", os.getcwd())
+
+# 获取脚本目录并切换工作目录
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+print("已切换工作目录:", os.getcwd())
+
+# 从环境变量中获取数据库配置
+db_config = {
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "host": os.getenv("DB_HOST"),
+    "port": os.getenv("DB_PORT")
+}
 
 # 文件路径
-business_id_file = "data/auto_repair_businesses_PA_filtered.csv"
-review_file = "data/yelp_academic_dataset_review.json"
-
-# 数据库配置
-db_config = {
-    "dbname": "yelp",
-    "user": "postgres",
-    "password": "123456",  # 请替换为您的实际密码
-    "host": "34.27.168.55",
-    "port": "5432"
-}
+business_id_file = "../data/auto_repair_businesses_PA_filtered.csv"
+review_file = "../data/yelp_academic_dataset_review.json"
 
 # 读取 business_id 文件
 print("步骤 1：加载 business_id 文件...")
@@ -23,8 +33,8 @@ print(f"从 {business_id_file} 加载了 {len(business_ids)} 个 business_id。"
 # 连接到 PostgreSQL 数据库
 print("步骤 2：连接到 PostgreSQL 数据库...")
 try:
-    conn = psycopg2.connect(**db_config)
-    cursor = conn.cursor()
+    client = psycopg2.connect(**db_config)
+    cursor = client.cursor()
     print("数据库连接成功。")
 except Exception as e:
     print(f"连接数据库时出错：{e}")
@@ -40,7 +50,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 """
 cursor.execute(create_table_query)
-conn.commit()
+client.commit()
 
 # 读取和过滤评论，然后插入到数据库中
 print("步骤 3：过滤评论并插入数据库...")
@@ -71,12 +81,12 @@ try:
             # 打印进度
             if processed_lines % 10000 == 0:
                 print(f"已处理 {processed_lines}/{total_lines} 行...")
-        conn.commit()
+        client.commit()
         print("数据插入完成。")
 except Exception as e:
     print(f"处理数据时出错：{e}")
-    conn.rollback()
+    client.rollback()
 finally:
     cursor.close()
-    conn.close()
+    client.close()
     print("数据库连接已关闭。")
