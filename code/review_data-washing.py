@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
 # 打印当前工作目录
 print("当前工作目录:", os.getcwd())
 
@@ -27,6 +28,7 @@ db_config = {
     "port": os.getenv("DB_PORT")
 }
 print("数据库配置：", db_config)
+
 # 文件路径
 business_id_file = "../data/auto_repair_businesses_PA_filtered.csv"
 review_file = "../data/yelp_academic_dataset_review.json"
@@ -46,10 +48,26 @@ except Exception as e:
     print(f"连接数据库时出错：{e}")
     exit()
 
+# 确保 reviews 表中存在 review_id 列
+alter_table_query = """
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'reviews' AND column_name = 'review_id'
+    ) THEN
+        ALTER TABLE reviews ADD COLUMN review_id VARCHAR(255);
+    END IF;
+END $$;
+"""
+cursor.execute(alter_table_query)
+client.commit()
+
 # 创建 reviews 表（如果尚未创建）
 create_table_query = """
 CREATE TABLE IF NOT EXISTS reviews (
     business_id VARCHAR(255),
+    review_id VARCHAR(255),
     stars INTEGER,
     text TEXT,
     date DATE
@@ -70,18 +88,19 @@ try:
             processed_lines += 1
             if review["business_id"] in business_ids:
                 # 移除不需要的项
-                for key in ["user_id", "review_id", "useful", "funny", "cool"]:
+                for key in ["user_id", "useful", "funny", "cool"]:
                     review.pop(key, None)
                 # 准备插入的数据
                 data = (
                     review["business_id"],
+                    review["review_id"],
                     review["stars"],
                     review["text"],
                     review["date"]
                 )
                 insert_query = """
-                    INSERT INTO reviews (business_id, stars, text, date)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO reviews (business_id, review_id, stars, text, date)
+                    VALUES (%s, %s, %s, %s, %s)
                 """
                 cursor.execute(insert_query, data)
             # 打印进度
