@@ -4,20 +4,8 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 
+# 加载 .env 文件中的环境变量
 load_dotenv()
-
-# 打印当前工作目录
-print("当前工作目录:", os.getcwd())
-
-# 获取脚本目录并切换工作目录
-script_dir = os.path.dirname(os.path.abspath(__file__))
-# 构建 .env 文件的完整路径
-dotenv_path = os.path.join(script_dir, '.env')
-
-# 加载 .env 文件
-load_dotenv(dotenv_path=dotenv_path)
-os.chdir(script_dir)
-print("已切换工作目录:", os.getcwd())
 
 # 从环境变量中获取数据库配置
 db_config = {
@@ -27,11 +15,18 @@ db_config = {
     "host": os.getenv("DB_HOST"),
     "port": os.getenv("DB_PORT")
 }
-print("数据库配置：", db_config)
+# 打印当前工作目录
+print("当前工作目录:", os.getcwd())
+
+# 获取脚本目录并切换工作目录
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+print("已切换工作目录:", os.getcwd())
 
 # 文件路径
 business_id_file = "../data/auto_repair_businesses_PA_filtered.csv"
 review_file = "../data/yelp_academic_dataset_review.json"
+
 
 # 读取 business_id 文件
 print("步骤 1：加载 business_id 文件...")
@@ -48,26 +43,11 @@ except Exception as e:
     print(f"连接数据库时出错：{e}")
     exit()
 
-# 确保 reviews 表中存在 review_id 列
-alter_table_query = """
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'reviews' AND column_name = 'review_id'
-    ) THEN
-        ALTER TABLE reviews ADD COLUMN review_id VARCHAR(255);
-    END IF;
-END $$;
-"""
-cursor.execute(alter_table_query)
-client.commit()
-
 # 创建 reviews 表（如果尚未创建）
 create_table_query = """
 CREATE TABLE IF NOT EXISTS reviews (
-    business_id VARCHAR(255),
     review_id VARCHAR(255),
+    business_id VARCHAR(255),
     stars INTEGER,
     text TEXT,
     date DATE
@@ -87,19 +67,19 @@ try:
             review = json.loads(line)
             processed_lines += 1
             if review["business_id"] in business_ids:
-                # 移除不需要的项
+                # 移除不需要的项，但保留 review_id
                 for key in ["user_id", "useful", "funny", "cool"]:
                     review.pop(key, None)
                 # 准备插入的数据
                 data = (
-                    review["business_id"],
                     review["review_id"],
+                    review["business_id"],
                     review["stars"],
                     review["text"],
                     review["date"]
                 )
                 insert_query = """
-                    INSERT INTO reviews (business_id, review_id, stars, text, date)
+                    INSERT INTO reviews (review_id, business_id, stars, text, date)
                     VALUES (%s, %s, %s, %s, %s)
                 """
                 cursor.execute(insert_query, data)
