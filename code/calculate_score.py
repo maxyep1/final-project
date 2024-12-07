@@ -1,3 +1,9 @@
+"""
+This function calculates the composite score for each repair shop.
+The formula combines the repair count and average rating:
+composite_score = log(1 + repair_count) * avg_rating
+"""
+
 import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
