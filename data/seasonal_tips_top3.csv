@@ -1,0 +1,13 @@
+fault_type,failure_probability,season
+engine,1.1123254401942926,Season_1
+lighting,0.9812889812889813,Season_1
+transmission,0.9812734082397003,Season_1
+safety_systems,4.0,Season_2
+fuel_system,1.7142857142857142,Season_2
+climate_control,1.4,Season_2
+climate_control,1.6,Season_3
+exhaust_system,1.4736842105263157,Season_3
+interior,1.2173913043478262,Season_3
+fuel_system,1.7142857142857142,Season_4
+lighting,1.180873180873181,Season_4
+interior,1.0969899665551839,Season_4
