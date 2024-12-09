@@ -113,5 +113,15 @@ def get_business_details(conn, business_ids):
     rows = cur.fetchall()
     cur.close()
 
+# Convert the result into a list of dictionaries containing only name and stars
+    business_details = [
+        {
+            "name": row["name"],
+            "stars": row["stars"]
+        }
+        for row in rows
+    ]
+    return business_details
+
 if __name__ == "__main__":
     app.run(debug=True)
