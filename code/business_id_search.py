@@ -95,6 +95,23 @@ def recommend_businesses():
         return jsonify({"business_ids": business_ids})
     finally:
         conn.close()
+#part 2 (GIS)
+def get_business_details(conn, business_ids):
+    """
+    Retrieve the name and stars information for the given business_ids.
+    """
+    if not business_ids:
+        return []
+
+    query = """
+        SELECT business_id, name, stars
+        FROM business
+        WHERE business_id = ANY(%s);
+    """
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(query, (business_ids,))
+    rows = cur.fetchall()
+    cur.close()
 
 if __name__ == "__main__":
     app.run(debug=True)
