@@ -4,6 +4,7 @@ import psycopg2.extras
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from flask import Flask, request, jsonify
+import math
 
 load_dotenv()
 DB_HOST = os.getenv("DB_HOST")
@@ -125,11 +126,12 @@ def get_business_details_with_location(conn, business_ids):
         for row in rows
     ]
     return business_details
+
 @app.route('/api/recommend', methods=['GET'])
 def recommend_businesses_with_map():
     """
-    Further filter the recommended businesses to find the 7 nearest ones, 
-    sort them by rating, and return detailed information, including labels for map display.
+    Further filter the recommended businesses based on proximity if coordinates are provided.
+    If coordinates are not provided, sort by ratings and return the top 7 businesses.
     """
     user_lat = request.args.get('user_lat', type=float)
     user_lon = request.args.get('user_lon', type=float)
@@ -138,9 +140,6 @@ def recommend_businesses_with_map():
 
     if (not fault_id or fault_id.strip() == "") and (not query_text or query_text.strip() == ""):
         return jsonify({"error": "Either fault_id or query_text must be provided."}), 400
-
-    if user_lat is None or user_lon is None:
-        return jsonify({"error": "Both user_lat and user_lon must be provided."}), 400
 
     conn = get_db_conn()
     try:
@@ -157,20 +156,28 @@ def recommend_businesses_with_map():
                 "message": "Your search did not match any businesses. Try using our Fault Part search feature to find a suitable store."
             }), 404
 
-        # Filter the 7 nearest businesses
-        nearest_businesses = get_nearest_businesses(user_lat, user_lon, business_ids, conn)
-
         # Retrieve detailed information for businesses, including ratings and names
-        business_ids_sorted = [b["business_id"] for b in nearest_businesses]
-        business_details = get_business_details_with_location(conn, business_ids_sorted)
+        business_details = get_business_details_with_location(conn, business_ids)
 
-        # Sort businesses by rating in descending order
-        sorted_businesses = sorted(business_details, key=lambda x: -x["stars"])
-        for idx, business in enumerate(sorted_businesses):
+        if user_lat is not None and user_lon is not None:
+            # If coordinates are provided, filter the 7 nearest businesses
+            nearest_businesses = get_nearest_businesses(user_lat, user_lon, business_ids, conn)
+            business_ids_sorted = [b["business_id"] for b in nearest_businesses]
+            sorted_businesses = sorted(
+                [b for b in business_details if b["business_id"] in business_ids_sorted],
+                key=lambda x: -x["stars"]
+            )
+        else:
+            # If coordinates are not provided, sort all businesses by ratings
+            sorted_businesses = sorted(business_details, key=lambda x: -x["stars"])
+
+        # Add labels A-G for the top 7 businesses
+        for idx, business in enumerate(sorted_businesses[:7]):
             business["label"] = chr(65 + idx)  # Add labels A, B, C, ..., G
-# Split into top 3 and remaining 4
+
+        # Split into top 3 and remaining 4
         top_3 = sorted_businesses[:3]
-        remaining_4 = sorted_businesses[3:]
+        remaining_4 = sorted_businesses[3:7]
 
         # Prepare the final response
         result = {
@@ -184,3 +191,4 @@ def recommend_businesses_with_map():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
