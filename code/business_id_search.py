@@ -96,15 +96,15 @@ def recommend_businesses():
     finally:
         conn.close()
 #part 2 (GIS)
-def get_business_details(conn, business_ids):
+def get_business_details_with_location(conn, business_ids):
     """
-    Retrieve the name and stars information for the given business_ids.
+    Retrieve the name, stars, and location information for given business_ids.
     """
     if not business_ids:
         return []
 
     query = """
-        SELECT business_id, name, stars
+        SELECT business_id, name, stars, latitude, longitude
         FROM business
         WHERE business_id = ANY(%s);
     """
@@ -113,15 +113,19 @@ def get_business_details(conn, business_ids):
     rows = cur.fetchall()
     cur.close()
 
-# Convert the result into a list of dictionaries containing only name and stars
+    # Convert the results into a list of dictionaries containing name, stars, latitude, and longitude
     business_details = [
         {
+            "business_id": row["business_id"],
             "name": row["name"],
-            "stars": row["stars"]
+            "stars": row["stars"],
+            "latitude": row["latitude"],
+            "longitude": row["longitude"]
         }
         for row in rows
     ]
     return business_details
+
 
 if __name__ == "__main__":
     app.run(debug=True)
