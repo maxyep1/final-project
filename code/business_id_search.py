@@ -168,7 +168,19 @@ def recommend_businesses_with_map():
         sorted_businesses = sorted(business_details, key=lambda x: -x["stars"])
         for idx, business in enumerate(sorted_businesses):
             business["label"] = chr(65 + idx)  # Add labels A, B, C, ..., G
+# Split into top 3 and remaining 4
+        top_3 = sorted_businesses[:3]
+        remaining_4 = sorted_businesses[3:]
 
+        # Prepare the final response
+        result = {
+            "top_3": top_3,
+            "remaining_4": remaining_4
+        }
+
+        return jsonify(result)
+    finally:
+        conn.close()
 
 if __name__ == "__main__":
     app.run(debug=True)
