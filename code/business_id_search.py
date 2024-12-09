@@ -125,6 +125,49 @@ def get_business_details_with_location(conn, business_ids):
         for row in rows
     ]
     return business_details
+@app.route('/api/recommend', methods=['GET'])
+def recommend_businesses_with_map():
+    """
+    Further filter the recommended businesses to find the 7 nearest ones, 
+    sort them by rating, and return detailed information, including labels for map display.
+    """
+    user_lat = request.args.get('user_lat', type=float)
+    user_lon = request.args.get('user_lon', type=float)
+    fault_id = request.args.get('fault_id', type=str)
+    query_text = request.args.get('query_text', type=str)
+
+    if (not fault_id or fault_id.strip() == "") and (not query_text or query_text.strip() == ""):
+        return jsonify({"error": "Either fault_id or query_text must be provided."}), 400
+
+    if user_lat is None or user_lon is None:
+        return jsonify({"error": "Both user_lat and user_lon must be provided."}), 400
+
+    conn = get_db_conn()
+    try:
+        # Retrieve business_ids based on fault_id or query_text
+        if fault_id and fault_id.strip():
+            business_ids = get_business_ids_by_fault(conn, fault_id.strip())
+        else:
+            business_ids = get_business_ids_by_similarity(conn, query_text.strip())
+
+        # If no matching businesses are found
+        if not business_ids:
+            return jsonify({
+                "businesses": [],
+                "message": "Your search did not match any businesses. Try using our Fault Part search feature to find a suitable store."
+            }), 404
+
+        # Filter the 7 nearest businesses
+        nearest_businesses = get_nearest_businesses(user_lat, user_lon, business_ids, conn)
+
+        # Retrieve detailed information for businesses, including ratings and names
+        business_ids_sorted = [b["business_id"] for b in nearest_businesses]
+        business_details = get_business_details_with_location(conn, business_ids_sorted)
+
+        # Sort businesses by rating in descending order
+        sorted_businesses = sorted(business_details, key=lambda x: -x["stars"])
+        for idx, business in enumerate(sorted_businesses):
+            business["label"] = chr(65 + idx)  # Add labels A, B, C, ..., G
 
 
 if __name__ == "__main__":
