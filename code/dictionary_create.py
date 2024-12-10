@@ -123,8 +123,8 @@ if __name__ == "__main__":
     auto_parts_data = get_auto_parts_data()
     
     # Define save paths
-    json_file_path = "auto_parts_synonyms.json"
-    csv_file_path = "auto_parts_synonyms.csv"
+    json_file_path = "data/auto_parts_synonyms.json"
+    csv_file_path = "data/auto_parts_synonyms.csv"
     
     # Save data
     save_to_json(auto_parts_data, json_file_path)

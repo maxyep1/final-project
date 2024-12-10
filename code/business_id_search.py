@@ -4,7 +4,6 @@ import psycopg2.extras
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from flask import Flask, request, jsonify
-import math
 
 load_dotenv()
 DB_HOST = os.getenv("DB_HOST")
@@ -24,7 +23,7 @@ def get_db_conn():
         password=DB_PASSWORD
     )
     return conn
-#接口1，返回故障部位列表给前端，用于生成下拉菜单。
+
 @app.route('/api/fault-parts', methods=['GET'])
 def get_fault_parts():
     """
@@ -39,7 +38,7 @@ def get_fault_parts():
 
     parts = [r['part_name'] for r in rows] if rows else []
     return jsonify({"fault_parts": parts})
-#接口2，前端用户提供fault type 选择返回后端进行分析
+
 def get_business_ids_by_fault(conn, fault_id):
     cur = conn.cursor()
     cur.execute("""
@@ -50,7 +49,7 @@ def get_business_ids_by_fault(conn, fault_id):
     rows = cur.fetchall()
     cur.close()
     return [r[0] for r in rows] if rows else []
-#接口3，前端客户提供查询信息返回后端进行分析
+
 def get_business_ids_by_similarity(conn, query_text):
     user_vec = model.encode(query_text)
     user_vec_str = "[" + ",".join(str(x) for x in user_vec) + "]"
@@ -68,45 +67,13 @@ def get_business_ids_by_similarity(conn, query_text):
     biz_ids = {r['business_id'] for r in rows}
     return list(biz_ids)
 
-#接口4，需要弹出页面询问用户是否可以提供地理位置信息
-@app.route('/api/recommend', methods=['GET'])
-def recommend_businesses():
-    """
-    用户提供 fault_id 或 query_text，以及 user_lat, user_lon。
-    当前阶段仅返回 business_ids 列表作为初步结果。未来可在此继续扩展距离和评分逻辑。
-    """
-    user_lat = request.args.get('user_lat', type=float)
-    user_lon = request.args.get('user_lon', type=float)
-    fault_id = request.args.get('fault_id', type=str)
-    query_text = request.args.get('query_text', type=str)
-
-    if (not fault_id or fault_id.strip() == "") and (not query_text or query_text.strip() == ""):
-        return jsonify({"error": "Either fault_id or query_text must be provided"}), 400
-
-    if user_lat is None or user_lon is None:
-        return jsonify({"error": "user_lat and user_lon must be provided"}), 400
-
-    conn = get_db_conn()
-    try:
-        if fault_id and fault_id.strip():
-            business_ids = get_business_ids_by_fault(conn, fault_id.strip())
-        else:
-            business_ids = get_business_ids_by_similarity(conn, query_text.strip())
-
-        # 目前仅返回business_ids，为下游或后续逻辑提供数据源
-        return jsonify({"business_ids": business_ids})
-    finally:
-        conn.close()
-
-        
-#part 2 (GIS)
 def get_business_details_with_location(conn, business_ids):
     """
-    Retrieve detailed information of businesses based on business_ids, including name, rating, address, and geographic location.
+    根据 business_ids 查询店铺的详细信息，包括名称、评分、地址和地理数据（geom）。
+    假设 business表中有 name, stars, address, geom 字段，geom是地理字段（geometry/geography）。
     """
     if not business_ids:
         return []
-
     query = """
         SELECT name, stars, address, ST_AsGeoJSON(geom) AS geom
         FROM business
@@ -116,26 +83,25 @@ def get_business_details_with_location(conn, business_ids):
     cur.execute(query, (business_ids,))
     rows = cur.fetchall()
     cur.close()
-
-    # Convert the query results into a list of dictionaries containing name, rating, address, and geographic location
     business_details = [
         {
             "name": row["name"],
             "stars": row["stars"],
             "address": row["address"],
-            "geom": row["geom"]  # Return geographic location in GeoJSON format
+            "geom": row["geom"]
         }
         for row in rows
     ]
     return business_details
 
-
-
 @app.route('/api/recommend', methods=['GET'])
-def recommend_businesses_with_map():
+def recommend_businesses():
     """
-    Use PostGIS to calculate the nearest businesses from the matched business_ids,
-    then sort the results by ratings.
+    最终推荐接口：
+    - 用户提供 fault_id 或 query_text，以及 user_lat, user_lon。
+    - 根据参数获得 business_ids。
+    - 如果有坐标，用PostGIS计算最近7家店，并按评分排序。
+    - 没有坐标则只按评分取前7家。
     """
     user_lat = request.args.get('user_lat', type=float)
     user_lon = request.args.get('user_lon', type=float)
@@ -143,29 +109,27 @@ def recommend_businesses_with_map():
     query_text = request.args.get('query_text', type=str)
 
     if (not fault_id or fault_id.strip() == "") and (not query_text or query_text.strip() == ""):
-        return jsonify({"error": "Either fault_id or query_text must be provided."}), 400
+        return jsonify({"error": "Either fault_id or query_text must be provided"}), 400
 
     conn = get_db_conn()
     try:
-        # Retrieve business_ids based on fault_id or query_text (business logic remains unchanged)
+        # 获取business_ids
         if fault_id and fault_id.strip():
             business_ids = get_business_ids_by_fault(conn, fault_id.strip())
         else:
             business_ids = get_business_ids_by_similarity(conn, query_text.strip())
 
-        # If no matching businesses are found
         if not business_ids:
             return jsonify({
                 "businesses": [],
-                "message": "No matching businesses found. Please try our Fault Part search feature."
+                "message": "No matching businesses found. Please try another fault part or description."
             }), 404
 
-        # If user location is provided, use PostGIS to filter the nearest businesses from the matched business_ids
         if user_lat is not None and user_lon is not None:
-            # Use PostGIS to get the nearest businesses from the matched business_ids
+            # 使用PostGIS计算最近店铺
             nearest_query = """
                 SELECT name, stars, address, ST_AsGeoJSON(geom) AS geom,
-                       ST_Distance(geom, ST_SetSRID(ST_MakePoint(%s, %s), 4326)) AS distance
+                       ST_Distance(geom, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography) AS distance
                 FROM business
                 WHERE business_id = ANY(%s)
                 ORDER BY distance ASC
@@ -176,47 +140,39 @@ def recommend_businesses_with_map():
             rows = cur.fetchall()
             cur.close()
 
-            # Convert query results into a list of dictionaries
             nearest_businesses = [
                 {
                     "name": row["name"],
                     "stars": row["stars"],
                     "address": row["address"],
                     "geom": row["geom"],
-                    "distance": row["distance"]  # Include distance information
+                    "distance": row["distance"]
                 }
                 for row in rows
             ]
 
-            # Sort the nearest businesses by ratings
+            # 按评分排序（评分降序）
             sorted_businesses = sorted(nearest_businesses, key=lambda x: -x["stars"])
         else:
-            # If user location is not provided, sort the businesses by ratings only
-            sorted_businesses = get_business_details_with_location(conn, business_ids)
-            sorted_businesses = sorted(sorted_businesses, key=lambda x: -x["stars"])[:7]
+            # 无坐标则仅按评分排序前7家
+            business_details = get_business_details_with_location(conn, business_ids)
+            sorted_businesses = sorted(business_details, key=lambda x: -x["stars"])[:7]
 
-        # Prepare response data (excluding business_id)   
-
-        ##接口5 ， 返回数据到前端页面
         result = {
             "businesses": [
                 {
-                    "name": business["name"],
-                    "stars": business["stars"],
-                    "address": business["address"],
-                    "geom": business["geom"]
+                    "name": b["name"],
+                    "stars": b["stars"],
+                    "address": b["address"],
+                    "geom": b["geom"]
                 }
-                for business in sorted_businesses[:7]
+                for b in sorted_businesses
             ]
         }
-  
+
         return jsonify(result)
     finally:
         conn.close()
 
-
-
-
 if __name__ == "__main__":
     app.run(debug=True)
-
