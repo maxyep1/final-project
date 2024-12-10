@@ -64,7 +64,7 @@ def extract_fault_type(text, processed_dict):
     return None
 
 
-json_path = "/Users/wusongyang/final-project/auto_parts_synonyms.json"  # Replace with the actual path
+json_path = "data/auto_parts_synonyms.json"  # Replace with the actual path
 fault_dict = load_fault_dict_from_json(json_path)
 processed_fault_dict = process_fault_dict(fault_dict)
 
