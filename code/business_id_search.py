@@ -96,16 +96,17 @@ def recommend_businesses():
         return jsonify({"business_ids": business_ids})
     finally:
         conn.close()
+
 #part 2 (GIS)
 def get_business_details_with_location(conn, business_ids):
     """
-    Retrieve the name, stars, and location information for given business_ids.
+    Retrieve detailed information of businesses based on business_ids, including name, rating, address, and geographic location.
     """
     if not business_ids:
         return []
 
     query = """
-        SELECT business_id, name, stars, latitude, longitude
+        SELECT name, stars, address, ST_AsGeoJSON(geom) AS geom
         FROM business
         WHERE business_id = ANY(%s);
     """
@@ -114,24 +115,25 @@ def get_business_details_with_location(conn, business_ids):
     rows = cur.fetchall()
     cur.close()
 
-    # Convert the results into a list of dictionaries containing name, stars, latitude, and longitude
+    # Convert the query results into a list of dictionaries containing name, rating, address, and geographic location
     business_details = [
         {
-            "business_id": row["business_id"],
             "name": row["name"],
             "stars": row["stars"],
-            "latitude": row["latitude"],
-            "longitude": row["longitude"]
+            "address": row["address"],
+            "geom": row["geom"]  # Return geographic location in GeoJSON format
         }
         for row in rows
     ]
     return business_details
 
+
+
 @app.route('/api/recommend', methods=['GET'])
 def recommend_businesses_with_map():
     """
-    Further filter the recommended businesses based on proximity if coordinates are provided.
-    If coordinates are not provided, sort by ratings and return the top 7 businesses.
+    Use PostGIS to calculate the nearest businesses from the matched business_ids,
+    then sort the results by ratings.
     """
     user_lat = request.args.get('user_lat', type=float)
     user_lon = request.args.get('user_lon', type=float)
@@ -143,7 +145,7 @@ def recommend_businesses_with_map():
 
     conn = get_db_conn()
     try:
-        # Retrieve business_ids based on fault_id or query_text
+        # Retrieve business_ids based on fault_id or query_text (business logic remains unchanged)
         if fault_id and fault_id.strip():
             business_ids = get_business_ids_by_fault(conn, fault_id.strip())
         else:
@@ -153,41 +155,63 @@ def recommend_businesses_with_map():
         if not business_ids:
             return jsonify({
                 "businesses": [],
-                "message": "Your search did not match any businesses. Try using our Fault Part search feature to find a suitable store."
+                "message": "No matching businesses found. Please try our Fault Part search feature."
             }), 404
 
-        # Retrieve detailed information for businesses, including ratings and names
-        business_details = get_business_details_with_location(conn, business_ids)
-
+        # If user location is provided, use PostGIS to filter the nearest businesses from the matched business_ids
         if user_lat is not None and user_lon is not None:
-            # If coordinates are provided, filter the 7 nearest businesses
-            nearest_businesses = get_nearest_businesses(user_lat, user_lon, business_ids, conn)
-            business_ids_sorted = [b["business_id"] for b in nearest_businesses]
-            sorted_businesses = sorted(
-                [b for b in business_details if b["business_id"] in business_ids_sorted],
-                key=lambda x: -x["stars"]
-            )
+            # Use PostGIS to get the nearest businesses from the matched business_ids
+            nearest_query = """
+                SELECT name, stars, address, ST_AsGeoJSON(geom) AS geom,
+                       ST_Distance(geom, ST_SetSRID(ST_MakePoint(%s, %s), 4326)) AS distance
+                FROM business
+                WHERE business_id = ANY(%s)
+                ORDER BY distance ASC
+                LIMIT 7;
+            """
+            cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute(nearest_query, (user_lon, user_lat, business_ids))
+            rows = cur.fetchall()
+            cur.close()
+
+            # Convert query results into a list of dictionaries
+            nearest_businesses = [
+                {
+                    "name": row["name"],
+                    "stars": row["stars"],
+                    "address": row["address"],
+                    "geom": row["geom"],
+                    "distance": row["distance"]  # Include distance information
+                }
+                for row in rows
+            ]
+
+            # Sort the nearest businesses by ratings
+            sorted_businesses = sorted(nearest_businesses, key=lambda x: -x["stars"])
         else:
-            # If coordinates are not provided, sort all businesses by ratings
-            sorted_businesses = sorted(business_details, key=lambda x: -x["stars"])
+            # If user location is not provided, sort the businesses by ratings only
+            sorted_businesses = get_business_details_with_location(conn, business_ids)
+            sorted_businesses = sorted(sorted_businesses, key=lambda x: -x["stars"])[:7]
 
-        # Add labels A-G for the top 7 businesses
-        for idx, business in enumerate(sorted_businesses[:7]):
-            business["label"] = chr(65 + idx)  # Add labels A, B, C, ..., G
-
-        # Split into top 3 and remaining 4
-        top_3 = sorted_businesses[:3]
-        remaining_4 = sorted_businesses[3:7]
-
-        # Prepare the final response
+        # Prepare response data (excluding business_id)
         result = {
-            "top_3": top_3,
-            "remaining_4": remaining_4
+            "businesses": [
+                {
+                    "name": business["name"],
+                    "stars": business["stars"],
+                    "address": business["address"],
+                    "geom": business["geom"]
+                }
+                for business in sorted_businesses[:7]
+            ]
         }
 
         return jsonify(result)
     finally:
         conn.close()
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
