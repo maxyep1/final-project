@@ -103,29 +103,30 @@ def get_auto_parts_data():
 
 
 
-# 定义函数将数据保存为 JSON 文件
+# Define a function to save data as a JSON file
 def save_to_json(data, file_path):
     with open(file_path, "w") as json_file:
         json.dump(data, json_file, indent=4)
     print(f"JSON file saved to: {file_path}")
 
-# 定义函数将数据保存为 CSV 文件
+# Define a function to save data as a CSV file
 def save_to_csv(data, file_path):
-    # 转换为列表格式适配 DataFrame
+    # Convert data to a list format suitable for DataFrame
     csv_data = [{"Component": key, "Synonyms/Keywords": ", ".join(value)} for key, value in data.items()]
     df = pd.DataFrame(csv_data)
     df.to_csv(file_path, index=False)
     print(f"CSV file saved to: {file_path}")
 
-# 主函数
+# Main function
 if __name__ == "__main__":
-    # 获取数据
+    # Retrieve data
     auto_parts_data = get_auto_parts_data()
     
-    # 保存路径
+    # Define save paths
     json_file_path = "auto_parts_synonyms.json"
     csv_file_path = "auto_parts_synonyms.csv"
     
-    # 保存数据
+    # Save data
     save_to_json(auto_parts_data, json_file_path)
     save_to_csv(auto_parts_data, csv_file_path)
+

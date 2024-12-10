@@ -1,18 +1,48 @@
 import pandas as pd
 from sqlalchemy import create_engine, text
+import os
+import psycopg2
+import psycopg2.extras
+from dotenv import load_dotenv
+from flask import Flask, request, jsonify
+# # Database configuration
+# db_config = {
+#     "dbname": "yelp",
+#     "user": "postgres",
+#     "password": "econ_finalproject",
+#     "host": "34.57.181.108",
+#     "port": 5432
+# }
 
-# Database configuration
-db_config = {
-    "dbname": "yelp",
-    "user": "postgres",
-    "password": "econ_finalproject",
-    "host": "34.57.181.108",
-    "port": 5432
-}
+# # Connect to the database using SQLAlchemy
+# engine = create_engine(f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['dbname']}")
+# Load environment variables from .env file
+load_dotenv()
 
-# Connect to the database using SQLAlchemy
-engine = create_engine(f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['dbname']}")
+# Get database credentials from environment variables
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_PORT = os.getenv("DB_PORT", "5432")
+# Initialize SQLAlchemy engine
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+engine = create_engine(DATABASE_URL)
+# Initialize the Flask app
+app = Flask(__name__)
 
+# # Function to create a database connection
+# def get_db_conn():
+#     """
+#     Establish a connection to the PostgreSQL database.
+#     """
+#     conn = psycopg2.connect(
+#         host=DB_HOST,
+#         database=DB_NAME,
+#         user=DB_USER,
+#         password=DB_PASSWORD
+#     )
+#     return conn
 # Load the reviews table
 reviews_df = pd.read_sql("SELECT business_id, fault_type FROM reviews", con=engine)
 

@@ -9,21 +9,30 @@ from nltk.corpus import stopwords
 import nltk
 from sqlalchemy import create_engine
 from sqlalchemy import text
+from flask import Flask, request, jsonify
 
-# load_dotenv()
+load_dotenv()
 
-# 
-# db_config = {
-#     "dbname": os.getenv("DB_NAME"),
-#     "user": os.getenv("DB_USER"),
-#     "password": os.getenv("DB_PASSWORD"),
-#     "host": os.getenv("DB_HOST"),
-#     "port": os.getenv("DB_PORT"),
-# }
+# Get database credentials from environment variables
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_PORT = os.getenv("DB_PORT", "5432")
+# Initialize SQLAlchemy engine
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+engine = create_engine(DATABASE_URL)
 
-# Download NLTK data (needed for first-time use)
-nltk.download('punkt')
-nltk.download('stopwords')
+# Ensure NLTK data is available
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
 
 # Initialize NLP tools
 stemmer = PorterStemmer()
@@ -54,19 +63,7 @@ def extract_fault_type(text, processed_dict):
             return key
     return None
 
-# Database configuration
-db_config = {
-    "dbname": "yelp",
-    "user": "postgres",
-    "password": "econ_finalproject",
-    "host": "34.57.181.108",
-    "port": 5432
-}
 
-# Connect to the database using Pandas
-engine = create_engine(f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['dbname']}")
-
-# Load dictionary and process it for stemming
 json_path = "/Users/wusongyang/final-project/auto_parts_synonyms.json"  # Replace with the actual path
 fault_dict = load_fault_dict_from_json(json_path)
 processed_fault_dict = process_fault_dict(fault_dict)
