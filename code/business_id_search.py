@@ -97,6 +97,7 @@ def recommend_businesses():
     finally:
         conn.close()
 
+        
 #part 2 (GIS)
 def get_business_details_with_location(conn, business_ids):
     """
