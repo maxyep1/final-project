@@ -31,19 +31,6 @@ engine = create_engine(DATABASE_URL)
 # Initialize the Flask app
 app = Flask(__name__)
 
-# # Function to create a database connection
-# def get_db_conn():
-#     """
-#     Establish a connection to the PostgreSQL database.
-#     """
-#     conn = psycopg2.connect(
-#         host=DB_HOST,
-#         database=DB_NAME,
-#         user=DB_USER,
-#         password=DB_PASSWORD
-#     )
-#     return conn
-# Load the reviews table
 reviews_df = pd.read_sql("SELECT business_id, fault_type FROM reviews", con=engine)
 
 # Clean the data and count occurrences of different fault_types for each business_id
