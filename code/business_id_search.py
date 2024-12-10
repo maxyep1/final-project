@@ -24,7 +24,7 @@ def get_db_conn():
         password=DB_PASSWORD
     )
     return conn
-
+#接口1，返回故障部位列表给前端，用于生成下拉菜单。
 @app.route('/api/fault-parts', methods=['GET'])
 def get_fault_parts():
     """
@@ -39,7 +39,7 @@ def get_fault_parts():
 
     parts = [r['part_name'] for r in rows] if rows else []
     return jsonify({"fault_parts": parts})
-
+#接口2，前端用户提供fault type 选择返回后端进行分析
 def get_business_ids_by_fault(conn, fault_id):
     cur = conn.cursor()
     cur.execute("""
@@ -50,7 +50,7 @@ def get_business_ids_by_fault(conn, fault_id):
     rows = cur.fetchall()
     cur.close()
     return [r[0] for r in rows] if rows else []
-
+#接口3，前端客户提供查询信息返回后端进行分析
 def get_business_ids_by_similarity(conn, query_text):
     user_vec = model.encode(query_text)
     user_vec_str = "[" + ",".join(str(x) for x in user_vec) + "]"
@@ -68,6 +68,7 @@ def get_business_ids_by_similarity(conn, query_text):
     biz_ids = {r['business_id'] for r in rows}
     return list(biz_ids)
 
+#接口4，需要弹出页面询问用户是否可以提供地理位置信息
 @app.route('/api/recommend', methods=['GET'])
 def recommend_businesses():
     """
@@ -194,7 +195,9 @@ def recommend_businesses_with_map():
             sorted_businesses = get_business_details_with_location(conn, business_ids)
             sorted_businesses = sorted(sorted_businesses, key=lambda x: -x["stars"])[:7]
 
-        # Prepare response data (excluding business_id)
+        # Prepare response data (excluding business_id)   
+
+        ##接口5 ， 返回数据到前端页面
         result = {
             "businesses": [
                 {
@@ -206,7 +209,7 @@ def recommend_businesses_with_map():
                 for business in sorted_businesses[:7]
             ]
         }
-
+  
         return jsonify(result)
     finally:
         conn.close()
