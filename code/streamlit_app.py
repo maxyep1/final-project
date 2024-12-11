@@ -5,10 +5,9 @@ import requests
 import os
 import json
 from dotenv import load_dotenv
-current_path = os.path.dirname(os.path.abspath(__file__))
-image_path = os.path.join(current_path, "..", "images", "logo.jpg")
-st.image(image_path, caption="Repair Shop Recommendations Based on Fault Location", use_column_width=True)
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(current_dir, "..", "images", "logo.jpg")
 
 # Load environment variables such as MAPBOX_TOKEN
 load_dotenv()
@@ -17,8 +16,10 @@ MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
 # Backend API URL (modify according to actual deployment)
 API_BASE_URL = "http://127.0.0.1:5000"
 
+# 显示标题和顶部图片
 st.title("Best Auto Repair📍")
 st.write("---")
+
 
 # Fetch fault parts list from the backend
 fault_parts = []
@@ -35,13 +36,12 @@ except Exception as e:
 col1, col2 = st.columns(2)
 
 with col1:
-    # Use a relative path for the image
+    # 在左列再次显示同一张图片时，仍然使用 image_path
     st.image(
-    "/images/logo.jpg", 
-    caption="Repair Shop Recommendations Based on Fault Location", 
-    use_column_width=True
-)
-
+        image_path, 
+        caption="Repair Shop Recommendations Based on Fault Location", 
+        use_column_width=True
+    )
 
 with col2:
     st.subheader("JUST SEARCH HERE!🌟 ")
