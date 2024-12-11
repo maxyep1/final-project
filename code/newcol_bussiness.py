@@ -98,6 +98,14 @@ def merge_and_update_diff(business_df, business_stats_df):
     """
     合并 `business` 和统计信息的 DataFrame，仅更新新列与旧列不同的地方。
     """
+    # 如果 `past_businesses` 不存在，创建该列并填充默认值
+    if "past_businesses" not in business_df.columns:
+        business_df["past_businesses"] = None
+
+    # 如果 `best_business` 不存在，创建该列并填充默认值
+    if "best_business" not in business_df.columns:
+        business_df["best_business"] = None
+
     # 合并数据，添加新列后缀 `_new`
     merged_df = business_df.merge(
         business_stats_df,
@@ -126,6 +134,7 @@ def merge_and_update_diff(business_df, business_stats_df):
     merged_df.drop(columns=["past_businesses_new", "best_business_new"], inplace=True)
 
     return merged_df
+
 
 
 
