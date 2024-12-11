@@ -5,6 +5,10 @@ import requests
 import os
 import json
 from dotenv import load_dotenv
+current_path = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(current_path, "..", "images", "logo.jpg")
+st.image(image_path, caption="Repair Shop Recommendations Based on Fault Location", use_column_width=True)
+
 
 # Load environment variables such as MAPBOX_TOKEN
 load_dotenv()
