@@ -1,0 +1,6 @@
+# Backend dependencies
+flask
+sentence_transformers
+python-dotenv
+psycopg2
+sqlalchemy
