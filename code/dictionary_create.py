@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 
-# 定义扩展的汽车部件数据
+
 def get_auto_parts_data():
     return{
   "engine": [
