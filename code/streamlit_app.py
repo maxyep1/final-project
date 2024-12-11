@@ -40,7 +40,7 @@ with col1:
     st.image(
         image_path, 
         caption="Repair Shop Recommendations Based on Fault Location", 
-        use_column_width=True
+        use_container_width=True
     )
 
 with col2:
