@@ -7,7 +7,7 @@ import json
 from dotenv import load_dotenv
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-image_path = os.path.join(current_dir, "..", "images", "logo.jpg")
+image_path = os.path.join(current_dir, "..", "..", "images", "logo.jpg")
 
 # Load environment variables such as MAPBOX_TOKEN
 load_dotenv()
