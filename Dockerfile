@@ -10,6 +10,8 @@ RUN pip install --upgrade pip
 RUN pip install -r /app/code/backend/requirements.txt
 RUN pip install -r /app/code/frontend/requirements.txt
 
+EXPOSE 8080
+
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
