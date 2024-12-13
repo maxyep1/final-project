@@ -292,3 +292,6 @@ GCR is a private container image storage service provided by Google Cloud Platfo
 Our website can be accessed by following link:
 
 [Best Auto Repair](https://my-web-app-280617041204.us-central1.run.app/)
+
+### Conclusion
+This project is a comprehensive and innovative solution designed to simplify the process for car owners in Pennsylvania to find reliable auto repair shops. By leveraging Yelp's open dataset, advanced natural language processing techniques, and geospatial analysis, we have developed a user-friendly recommendation system. Combined with an interactive GIS map and seasonal maintenance suggestions, it provides forward-thinking solutions for car owners. We hope this project will continue to evolve into a powerful tool that makes car maintenance simpler, smarter, and more efficient.
