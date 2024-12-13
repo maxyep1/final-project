@@ -16,7 +16,6 @@ MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
 # Backend API URL (modify according to actual deployment)
 API_BASE_URL = "http://127.0.0.1:5000"
 
-# 显示标题和顶部图片
 st.title("Best Auto Repair📍")
 st.write("---")
 
@@ -36,7 +35,6 @@ except Exception as e:
 col1, col2 = st.columns(2)
 
 with col1:
-    # 在左列再次显示同一张图片时，仍然使用 image_path
     st.image(
         image_path, 
         caption="Repair Shop Recommendations Based on Fault Location", 
