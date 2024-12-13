@@ -41,6 +41,56 @@ To interact with and manage the database, we used DBeaver, an intuitive database
 
 Combining GCP for hosting and DBeaver for management enabled us to maintain a streamlined, efficient workflow. This setup ensures that our data remains organized, queryable, and ready for downstream analysis, modeling, or reporting tasks.
 
+## NLP and Fault Extraction
+
+### Key Functions
+
+**Automotive Parts Data Management:**
+Creates a structured dictionary of automotive parts categorized by functional systems (e.g., engine, transmission). Saves the dictionary in both JSON and CSV formats for easy access and integration.
+
+**Fault Extraction:**
+Builds an NLP pipeline to identify fault types in customer reviews. Preprocesses review text using stemming and stop-word removal, then matches normalized text with predefined fault categories.
+
+**Database Integration:**
+Extracts review data from the reviews table in PostgreSQL. Updates the table with a new fault_type column and saves categorized fault types back to the database. Handles schema modifications programmatically.
+
+**Business Insights Generation:**
+Analyzes fault occurrences for each business, calculating frequencies for fault types. Produces key insights:
+
+**Past Businesses:**
+Summary of fault types and counts.
+
+**Best Business:**
+Most frequently occurring fault type.
+
+**Business Table Update:**
+Updates the business table with new columns (past_businesses and best_business). Merges new insights with existing data to maintain integrity and avoid overwriting unchanged data.
+
+### Description ###
+
+This pipeline automates the processing and analysis of automotive parts data and customer reviews. It uses NLP techniques to extract fault types and integrates insights into a PostgreSQL database. The system generates valuable business statistics to help companies address customer concerns and improve service quality.
+
+### Workflow
+
+**Data Management:**
+Create and save a structured automotive parts dictionary for reuse.
+
+**Fault Extraction:**
+Preprocess customer reviews and identify fault types using NLP.
+
+**Database Update:** 
+Save extracted fault types back to the database in a new column.
+
+**Insights Generation:**
+Analyze fault types and compute statistics for each business.
+
+**Business Update:**
+Merge insights into the business table without overwriting existing data.
+
+This pipeline provides an efficient solution for fault type analysis and business insights generation.
+
+
+
 ## Review Embedding Pipeline
 
 ### Key Functions
