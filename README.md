@@ -16,6 +16,46 @@ Whether you need urgent repairs or regular maintenance, our system is your relia
 
 ![997EBFED-DCDC-4A7C-8FF8-D27B824E474B](https://github.com/user-attachments/assets/1c5479c4-d2c3-4971-b9be-3d9769ffd8c5)
 
+## Review Embedding Pipeline
+
+### Key Functions
+
+**get_unembedded_reviews():**
+
+Queries the reviews table in the database to fetch reviews where the embedding column is NULL.
+Returns the results as a pandas DataFrame containing review_id and text.
+
+**generate_embeddings():**
+
+Uses the pre-trained SentenceTransformer model "all-MiniLM-L6-v2" to generate semantic vector embeddings for the fetched reviews.
+Maps each review text to a high-dimensional vector space, ensuring semantically similar reviews are closer in this space.
+
+**save_embeddings_to_db():**
+
+Updates the reviews table by saving the generated embeddings to the corresponding embedding column.
+Processes and updates embeddings in batches to improve database performance.
+
+**Pre-trained Model:**
+
+Utilizes the "all-MiniLM-L6-v2" model from sentence_transformers for efficient and accurate natural language embedding generation.
+
+### Description
+
+This pipeline processes all reviews in the reviews table with a NULL embedding field, generating semantic vector embeddings for them. The embeddings are created using the pre-trained "all-MiniLM-L6-v2" SentenceTransformer model, which maps natural language descriptions to a high-dimensional vector space based on semantic similarity. The generated embeddings are then saved back to the database, enhancing the ability to perform similarity searches and advanced analyses on the review data.
+
+### Workflow
+
+**Query Reviews:**
+Fetch all reviews from the database where the embedding field is empty.
+**Generate Embeddings:**
+Apply the "all-MiniLM-L6-v2" model to generate a semantic embedding for each review text.
+Convert embeddings to a list format suitable for database storage.
+**Update Database:**
+Save the generated embeddings back to the reviews table.
+Use batch processing to update the database efficiently, ensuring transactional integrity.
+**Completion:**
+Print a message confirming successful updates or notify if there are no new reviews to process.
+
 
 ## Data Analysis and Experience Evaluation
 
