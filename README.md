@@ -6,6 +6,7 @@
 
 ### Group Members: Fan Ye, Huiwen Lian, Chengyang Xu, Ningtao Xu, Songyang Wu
 
+
 ## Introduction
 
 Living in PA and still struggling to find the right repair shop? Our project is designed specifically for car owners, offering an intelligent recommendation system for second-hand car repair shops. By deeply analyzing Yelp data, including business information and user reviews, we’ve identified which repair shops excel at solving specific problems and deliver the best results. No matter what issue your car is facing, we can help you find the most experienced repair shops!
@@ -15,6 +16,7 @@ Additionally, we’ve created an interactive GIS map that allows car owners to e
 Whether you need urgent repairs or regular maintenance, our system is your reliable assistant, making car care simpler and worry-free! 🚗✨
 
 ![997EBFED-DCDC-4A7C-8FF8-D27B824E474B](https://github.com/user-attachments/assets/1c5479c4-d2c3-4971-b9be-3d9769ffd8c5)
+
 
 ## Yelp Dataset Processing and Remote CDP Database Setup
 
@@ -40,6 +42,7 @@ To interact with and manage the database, we used DBeaver, an intuitive database
 - Confirm that our data filtering and insertion processes worked correctly by querying the newly inserted records.
 
 Combining GCP for hosting and DBeaver for management enabled us to maintain a streamlined, efficient workflow. This setup ensures that our data remains organized, queryable, and ready for downstream analysis, modeling, or reporting tasks.
+
 
 ## NLP and Fault Extraction
 
@@ -132,6 +135,7 @@ Use batch processing to update the database efficiently, ensuring transactional 
 Print a message confirming successful updates or notify if there are no new reviews to process.
 
 
+
 ## Data Analysis and Experience Evaluation
 
 In this section, we evaluate the frequency of specific faults repaired by each shop across different time periods to analyze their expertise in handling particular issues. By counting the number of times each shop repairs different fault types and combining this data with user ratings, we calculate a comprehensive score for each shop's proficiency in repairing specific issues. Additionally, we analyze the seasonal trends of various fault types to identify common seasonal issues, providing tailored maintenance recommendations to help car owners proactively prevent potential problems.
@@ -141,6 +145,7 @@ Step 1: Run the script code/backend/fault_maintenance_frequency.py to process th
 Step 2: Run the script code/backend/calculate_score.py to score each repair shop's expertise. This script combines repair frequencies with user ratings to calculate a composite score for each shop’s performance in repairing specific faults. These scores help identify the top-performing shops for different repair projects, enabling car owners to make informed choices.
 
 Step 3: Run the script code/backend/seasonal_trends.py to analyze the seasonal trends of fault types. Then, run the script code/backend/seasonal_tips_app.py to generate a visualized GIS map based on the analysis results. Together, these scripts identify the most common seasonal issues and provide corresponding tailored maintenance recommendations. For example, the analysis might reveal that battery failures are more frequent in winter, prompting maintenance tips for cold seasons to help car owners proactively address potential problems.
+
 
 
 ## Recommendation System build
@@ -257,6 +262,7 @@ Displays a list of recommended shops, including names, ratings, and addresses.
 Visualizes shop locations on a Mapbox-based interactive map.
 
 
+
 ## Deploy
 ### Project structure
 The project frontend uses **Streamlit**, and the backend uses the **Flask** framework. The two communicate via the HTTP protocol. The project structure is as follows:
@@ -293,5 +299,7 @@ Our website can be accessed by following link:
 
 [Best Auto Repair](https://my-web-app-280617041204.us-central1.run.app/)
 
-### Conclusion
+
+
+## Conclusion
 This project is a comprehensive and innovative solution designed to simplify the process for car owners in Pennsylvania to find reliable auto repair shops. By leveraging Yelp's open dataset, advanced natural language processing techniques, and geospatial analysis, we have developed a user-friendly recommendation system. Combined with an interactive GIS map and seasonal maintenance suggestions, it provides forward-thinking solutions for car owners. We hope this project will continue to evolve into a powerful tool that makes car maintenance simpler, smarter, and more efficient.
