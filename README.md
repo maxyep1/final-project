@@ -32,7 +32,14 @@ We utilize two primary JSON files from the dataset:
 
 ### Creating the Database
 For this project, we utilized the Google Cloud Platform (GCP) to host our PostgreSQL database and DBeaver as the client tool to manage and explore the database.
+To interact with and manage the database, we used DBeaver, an intuitive database management tool. With DBeaver, we were able to:
 
+- Establish a secure connection to our GCP-hosted PostgreSQL instance using credentials stored as environment variables.
+- Explore the database schema, run SQL queries, and visually inspect the data.
+- Create and modify tables, ensuring that our database schema accommodates the business and review data from the Yelp dataset.
+- Confirm that our data filtering and insertion processes worked correctly by querying the newly inserted records.
+
+Combining GCP for hosting and DBeaver for management enabled us to maintain a streamlined, efficient workflow. This setup ensures that our data remains organized, queryable, and ready for downstream analysis, modeling, or reporting tasks.
 
 ## Review Embedding Pipeline
 
