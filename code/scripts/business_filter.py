@@ -54,6 +54,6 @@ try:
     
     '''commit changes'''
     client.commit()
-    print(f"成功插入 {len(filtered_data)} 条数据到表 {table_name}")
+    print(f"insert {len(filtered_data)} data to table {table_name}")
 except Exception as e:
-    print(f"发生错误: {e}")
+    print(f"fault: {e}")
