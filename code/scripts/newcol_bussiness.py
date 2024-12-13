@@ -73,7 +73,7 @@ def build_business_stats(fault_counts):
 
 def fetch_business_table():
     """
-    从数据库中读取 `business` 表并返回 DataFrame。
+   Read the 'business' table from the database and return a DataFrame.
     """
     return pd.read_sql("SELECT * FROM business", con=engine)
 
@@ -84,7 +84,7 @@ def fetch_business_table():
 
 # def merge_and_fill_data(business_df, business_stats_df):
 #     """
-#     合并 `business` 和统计信息的 DataFrame，并填充缺失值。
+#    Merge the 'business' and statistical information into a DataFrame, and fill in missing values.
 #     """
 #     updated_business_df = business_df.merge(business_stats_df, on="business_id", how="left")
 #     updated_business_df["past_businesses"].fillna("unknown", inplace=True)
@@ -93,25 +93,21 @@ def fetch_business_table():
 
 def merge_and_update_diff(business_df, business_stats_df):
     """
-    合并 `business` 和统计信息的 DataFrame，仅更新新列与旧列不同的地方。
+    Merge the 'business' and statistical information into a DataFrame, updating only the differences between the new and old columns.
     """
-    # 如果 `past_businesses` 不存在，创建该列并填充默认值
     if "past_businesses" not in business_df.columns:
         business_df["past_businesses"] = None
 
-    # 如果 `best_business` 不存在，创建该列并填充默认值
     if "best_business" not in business_df.columns:
         business_df["best_business"] = None
 
-    # 合并数据，添加新列后缀 `_new`
     merged_df = business_df.merge(
         business_stats_df,
         on="business_id",
         how="left",
-        suffixes=("", "_new")  # 避免列名冲突
+        suffixes=("", "_new") 
     )
 
-    # 更新 `past_businesses` 列：仅更新与新列不同的地方
     merged_df["past_businesses"] = merged_df.apply(
         lambda row: row["past_businesses_new"]
         if pd.notnull(row["past_businesses_new"]) and row["past_businesses"] != row["past_businesses_new"]
@@ -119,7 +115,6 @@ def merge_and_update_diff(business_df, business_stats_df):
         axis=1
     )
 
-    # 更新 `best_business` 列：仅更新与新列不同的地方
     merged_df["best_business"] = merged_df.apply(
         lambda row: row["best_business_new"]
         if pd.notnull(row["best_business_new"]) and row["best_business"] != row["best_business_new"]
@@ -127,7 +122,6 @@ def merge_and_update_diff(business_df, business_stats_df):
         axis=1
     )
 
-    # 删除临时列
     merged_df.drop(columns=["past_businesses_new", "best_business_new"], inplace=True)
 
     return merged_df
@@ -139,24 +133,20 @@ def merge_and_update_diff(business_df, business_stats_df):
 
 def main():
     """
-    主函数：处理数据并生成更新后的业务表。
+   Main function: Process data and generate updated business tables.
 
     """
     global updated_business_df
-    # 获取数据
     reviews_df = fetch_reviews()
     fault_counts = process_fault_counts(reviews_df)
     business_stats_df = build_business_stats(fault_counts)
     business_df = fetch_business_table()
 
-    # 合并数据
     updated_business_df = merge_and_update_diff(business_df, business_stats_df)
 
-    # 打印验证
     print(updated_business_df.head(50))
     # print(updated_business_df.iloc[100:200])
 
-# 调用 main 函数
 main()
 
 
