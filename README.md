@@ -1,10 +1,10 @@
-Automotive Repair Provider Recommendation System in Pennsylvania
+Final Project: Automotive Repair Provider Recommendation System in Pennsylvania
 
 December 13, 2024
 
 Python, Big Data, and Databases (ECO395m)
 
-Fan Ye, Huiwen Lian, Chengyang Xu, Ningtao Xu, Songyang Wu
+Group Members: Fan Ye, Huiwen Lian, Chengyang Xu, Ningtao Xu, Songyang Wu
 
 ## Introduction
 
