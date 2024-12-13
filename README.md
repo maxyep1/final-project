@@ -16,6 +16,24 @@ Whether you need urgent repairs or regular maintenance, our system is your relia
 
 ![997EBFED-DCDC-4A7C-8FF8-D27B824E474B](https://github.com/user-attachments/assets/1c5479c4-d2c3-4971-b9be-3d9769ffd8c5)
 
+## Yelp Dataset Processing and Remote CDP Database Setup
+
+### Source of the Dataset
+The dataset used in this project is the [Yelp Open Dataset](https://www.yelp.com/dataset/download).
+
+Our project is built on the Yelp open dataset for academic research. The dataset consists of a subset of actual Yelp businesses, reviews, and user data. Specifically, we are interested in reviews for auto repair businesses located in the state of Pennsylvania (PA). We make use of two JSON files from the dataset: “business” and “review.”
+
+The “business” JSON contains information such as business name, address, location (city, latitude, longitude), star rating, number of reviews, and categories. We use it to identify all auto repair businesses in PA. The “review” JSON contains user reviews, from which we extract the review text and review date. Together, these two sources allow us to analyze both the business attributes and the corresponding user feedback.
+
+We utilize two primary JSON files from the dataset:
+
+- **business**: Contains essential information about each establishment, including the business name, address, geographical location, ratings, review counts, and associated categories.
+- **review**: Includes detailed user reviews of these businesses. From this file, we extract the textual content of the reviews for our study.
+
+### Creating the Database
+For this project, we utilized the Google Cloud Platform (GCP) to host our PostgreSQL database and DBeaver as the client tool to manage and explore the database.
+
+
 ## Review Embedding Pipeline
 
 ### Key Functions
