@@ -42,6 +42,62 @@ Lack of Personalization in Recommendations: The current recommendation results a
 
 Static Recommendation Logic: The current recommendation logic is static and focuses solely on repair frequency and user ratings. It does not account for dynamic factors such as shop availability, current workload, or estimated repair times. In the future, integrating live data streams and shop scheduling systems could make the recommendations more dynamic and practical.
 
+## Streamlit
+
+### Key Functions
+
+**1.load_dotenv():**
+Loads environment variables such as MAPBOX_TOKEN from a .env file.
+
+**2.requests.get():**
+Fetches fault parts from the backend API endpoint /api/fault-parts.
+Retrieves repair shop recommendations from the backend API endpoint /api/recommend.
+
+**3.st.form():**
+Builds an interactive form for user inputs, including fault parts, a custom description, and location.
+
+**4.st.selectbox():**
+Allows users to select a fault part from a dropdown menu.
+
+**5.st.text_input():**
+Accepts user input for a custom fault description and optional location (latitude and longitude).
+
+**6.st.image():**
+Displays the app logo with a caption.
+
+**7.st.plotly_chart():**
+
+Visualizes shop locations on a Mapbox-based interactive map using Plotly.
+**8.px.scatter_mapbox():**
+
+Creates a scatter map with shop locations, names, addresses, and ratings.
+
+**9.pd.DataFrame():**
+
+Processes API response data into a pandas DataFrame for easier manipulation and visualization.
+
+### Description
+
+This application helps users find auto repair shops by selecting a fault part or describing the issue. It fetches recommendations from a backend API and visualizes shop details, including geographic locations, on an interactive map. Users can optionally input their location to receive location-based recommendations.
+
+### Workflow
+
+**1.Input:**
+
+Users fill out a form with fault part selection, custom issue description, and optional location input in the format "latitude, longitude."
+
+**2.API Interaction:**
+
+Sends user inputs to the backend API to fetch fault parts and shop recommendations.
+**3.Data Processing:**
+
+Processes the API response, extracting shop details and geographical coordinates.
+
+**4.Output:**
+Displays a list of recommended shops, including names, ratings, and addresses.
+Visualizes shop locations on a Mapbox-based interactive map.
+
+
 ## Deploy
 ### Project structure
 The project frontend uses **Streamlit**, and the backend uses the **Flask** framework. The two communicate via the HTTP protocol. The project structure is as follows:
