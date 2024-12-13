@@ -28,6 +28,50 @@ Step 2: Run the script code/backend/calculate_score.py to score each repair shop
 Step 3: Run the script code/backend/seasonal_trends.py to analyze the seasonal trends of fault types. Then, run the script code/backend/seasonal_tips_app.py to generate a visualized GIS map based on the analysis results. Together, these scripts identify the most common seasonal issues and provide corresponding tailored maintenance recommendations. For example, the analysis might reveal that battery failures are more frequent in winter, prompting maintenance tips for cold seasons to help car owners proactively address potential problems.
 
 
+## Recommendation System build
+
+You developed a business recommendation system that integrates semantic matching with geolocation-based proximity analysis. By combining fault type diagnosis with user-provided location data, the system delivers personalized business recommendations. Below are the key features and highlights of this project:
+
+### 1. Business Details Retrieval
+- Implemented the `get_business_details_with_location` function to retrieve detailed business information, including:
+  - Name, ratings, address, and geolocation data from the database.
+- Utilized PostGIS functions to handle geographic data:
+  - Used `ST_AsGeoJSON` for converting geographic data into GeoJSON format, ensuring compatibility with modern mapping and location-based services.
+
+### 2. Recommendation API Development
+- Designed a RESTful API endpoint (`/api/recommend`) to recommend businesses based on:
+  - Fault type ID (`fault_id`) or descriptive query text (`query_text`).
+  - User-provided geographical coordinates (`user_lat` and `user_lon`).
+- Ensured input flexibility, allowing recommendations based on either fault types or natural language descriptions, enhancing user-friendliness.
+
+### 3. Fault-Based Business Matching
+- Integrated functions to retrieve relevant business IDs based on:
+  - Exact matches for fault type IDs (`fault_id`).
+  - Semantic similarity for query text (`query_text`), making the fault diagnosis system more accessible to non-technical users.
+
+### 4. Location-Based Recommendations
+- Incorporated PostGIS for geospatial calculations:
+  - Used `ST_Distance` to compute the distance between user-provided coordinates and business locations.
+  - Ranked businesses by proximity, prioritizing the nearest 7 businesses.
+
+### 5. Enhanced Sorting and Ranking
+- Implemented dual sorting mechanisms to improve recommendation quality:
+  - For queries with geolocation, businesses were ranked by distance (ascending) and then by ratings (descending).
+  - For queries without geolocation, businesses were ranked solely by ratings (descending).
+
+### 6. Scalable API Design
+- Provided meaningful error handling and informative messages when no matching businesses were found.
+- Delivered API responses in JSON format, enabling seamless integration with frontend or third-party systems.
+
+### 7. Key Achievements
+- Successfully combined geospatial analysis and fault-based business matching into a user-centric recommendation system.
+- Improved data accessibility by exposing critical business details through the API.
+- Enhanced the usability of fault diagnosis by supporting geolocation-based personalized recommendations.
+
+
+
+
+
 
 
 ## Limitation and Further Extension
