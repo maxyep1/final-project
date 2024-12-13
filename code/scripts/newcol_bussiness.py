@@ -5,10 +5,10 @@ import os
 from dotenv import load_dotenv
 
 
-# 加载环境变量
+# Load
 load_dotenv()
 
-# 数据库连接配置
+# Connect to Database
 DB_HOST = os.getenv("DB_HOST")
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
@@ -19,9 +19,6 @@ DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NA
 engine = create_engine(DATABASE_URL)
 
 def fetch_reviews():
-    """
-    从数据库中读取 `reviews` 表并返回 DataFrame。
-    """
     return pd.read_sql("SELECT business_id, fault_type FROM reviews", con=engine)
 
 
@@ -32,7 +29,7 @@ def fetch_reviews():
 
 def process_fault_counts(reviews_df):
     """
-    根据 fault_type 统计 business_id 的出现次数，并返回一个包含计数的 DataFrame。
+    Count the number of occurrences of business_id based on the fault_type and return a DataFrame containing the count.
     """
     fault_counts = (
         reviews_df.groupby(["business_id", "fault_type"])
@@ -43,7 +40,7 @@ def process_fault_counts(reviews_df):
 
 def generate_business_stats(group):
     """
-    生成 past_businesses 和 best_business 数据。
+    past_businesses and best_business
     """
     if group.empty:
         return "unknown", "unknown"
@@ -58,7 +55,7 @@ def generate_business_stats(group):
 
 def build_business_stats(fault_counts):
     """
-    根据 fault_counts 生成业务统计信息并返回 DataFrame。
+    Generate business statistics based on fault_comunts and return a DataFrame
     """
     business_stats = []
     for business_id, group in fault_counts.groupby("business_id"):
