@@ -18,3 +18,18 @@ Step 1: Run the script code/backend/fault_maintenance_frequency.py to process th
 Step 2: Run the script code/backend/calculate_score.py to score each repair shop's expertise. This script combines repair frequencies with user ratings to calculate a composite score for each shop’s performance in repairing specific faults. These scores help identify the top-performing shops for different repair projects, enabling car owners to make informed choices.
 
 Step 3: Run the script code/backend/seasonal_trends.py to analyze the seasonal trends of fault types. Then, run the script code/backend/seasonal_tips_app.py to generate a visualized GIS map based on the analysis results. Together, these scripts identify the most common seasonal issues and provide corresponding tailored maintenance recommendations. For example, the analysis might reveal that battery failures are more frequent in winter, prompting maintenance tips for cold seasons to help car owners proactively address potential problems.
+
+
+
+
+Limitation and Further Extension
+
+Despite the functionality our project provides, there are still some limitations that can be improved in the future:
+
+Manual Location Input: Currently, users need to manually input latitude and longitude coordinates to perform a search. This process is not very user-friendly. In the future, we plan to integrate JavaScript to request location permissions directly from users, enabling the system to automatically retrieve and use their geographic coordinates for instant feedback and seamless interaction.
+
+Basic NLP Approach: Our current NLP implementation relies on a predefined fault dictionary for keyword matching. While effective for specific scenarios, it lacks flexibility and adaptability to diverse queries. In the future, we aim to incorporate more advanced algorithms, such as transformer-based models, to provide more accurate and contextual query interpretations.
+
+Lack of Personalization in Recommendations: The current recommendation results are primarily based on repair frequency and user ratings, without taking individual user preferences into account, such as budget, distance preferences, or repair time requirements. In the future, we plan to introduce user profiling, allowing users to customize their queries with more options and receive recommendations tailored to their specific needs.
+
+Static Recommendation Logic: The current recommendation logic is static and focuses solely on repair frequency and user ratings. It does not account for dynamic factors such as shop availability, current workload, or estimated repair times. In the future, integrating live data streams and shop scheduling systems could make the recommendations more dynamic and practical.
