@@ -150,7 +150,7 @@ Step 3: Run the script `seasonal_trends` to analyze the seasonal trends of fault
 
 ## Recommendation System Build
 
-This part implements a business recommendation system that integrates fault type diagnosis with geolocation-based analysis to provide tailored repair shop recommendations. The system retrieves business information from a database, processes user inputs, and delivers relevant suggestions through a RESTful API. Below is an overview of the implemented features:
+This part implements a business recommendation system that integrates fault type diagnosis with geolocation-based analysis to provide tailored repair shop recommendations. The system retrieves business information from a database, processes user inputs, and delivers relevant suggestions through a RESTful API. 
 
 ### 1. Business Details Retrieval
 - Developed the `get_business_details_with_location` function to fetch business details from the database, including:
